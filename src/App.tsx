@@ -135,7 +135,7 @@ const projectsData: ProjectData[] = [
     homepage: null,
     topics: ['ai', 'chatbot', 'python', 'machine-learning'],
     image:
-      'https://raw.githubusercontent.com/RobsonMarcolino/Portfolio_Dev/main/RaioXapp.jpeg',
+      'https://github.com/RobsonMarcolino/Portfolio_Dev/blob/main/RaioXapp.jpeg?raw=true',
     video: 'https://robsonmarcolino.github.io/PortfolioProffiss/assets/Video-Dozy24uK.mp4',
   },
   {
