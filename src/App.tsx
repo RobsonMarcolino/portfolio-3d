@@ -553,7 +553,7 @@ function HeroSection() {
       </div>
 
       {/* 3D Portrait */}
-      <div className="absolute bottom-[12vh] left-1/2 z-10 w-[55vw] max-w-[240px] -translate-x-1/2 sm:bottom-0 sm:w-[320px] sm:max-w-none md:w-[400px] lg:w-[480px]">
+      <div className="absolute top-[22%] left-1/2 z-10 w-[55vw] max-w-[240px] -translate-x-1/2 sm:top-auto sm:bottom-0 sm:w-[320px] sm:max-w-none md:w-[400px] lg:w-[480px]">
         <FadeIn delay={0.6} y={30}>
           <Magnet padding={150} strength={3}>
             <PortraitImage />
@@ -716,30 +716,26 @@ const aboutDecor = [
   {
     src: 'https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/moon_icon.11395d36.png',
     className:
-      'top-[2%] left-[2%] sm:top-[4%] sm:left-[1%] md:left-[4%] w-[60px] sm:w-[130px] md:w-[210px]',
+      'top-[5%] left-[5%] sm:top-[4%] sm:left-[1%] md:left-[4%] w-[60px] sm:w-[130px] md:w-[210px]',
     delay: 0.1,
-    x: -30,
   },
   {
     src: 'https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/p59_1.4659672e.png',
     className:
-      'bottom-[5%] left-[2%] sm:bottom-[8%] sm:left-[4%] md:left-[10%] w-[50px] sm:w-[110px] md:w-[180px]',
+      'bottom-[10%] left-[5%] sm:bottom-[8%] sm:left-[4%] md:left-[10%] w-[50px] sm:w-[110px] md:w-[180px]',
     delay: 0.25,
-    x: -30,
   },
   {
     src: 'https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/lego_icon-1.703bb594.png',
     className:
-      'top-[10%] right-[2%] sm:top-[4%] sm:right-[1%] md:right-[4%] w-[60px] sm:w-[130px] md:w-[210px]',
+      'top-[15%] right-[5%] sm:top-[4%] sm:right-[1%] md:right-[4%] w-[60px] sm:w-[130px] md:w-[210px]',
     delay: 0.15,
-    x: 30,
   },
   {
     src: 'https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/Group_134-1.2e04f3ce.png',
     className:
-      'bottom-[10%] right-[2%] sm:bottom-[8%] sm:right-[2%] md:right-[10%] w-[70px] sm:w-[140px] md:w-[220px]',
+      'bottom-[15%] right-[5%] sm:bottom-[8%] sm:right-[2%] md:right-[10%] w-[70px] sm:w-[140px] md:w-[220px]',
     delay: 0.3,
-    x: 30,
   },
 ];
 
@@ -758,21 +754,21 @@ function AboutSection() {
 
       {/* Figma decorative images */}
       {aboutDecor.map((item) => (
-        <FadeIn
+        <motion.div
           key={item.src}
-          delay={item.delay}
-          duration={0.9}
-          x={item.x}
-          y={0}
+          initial={{ opacity: 0, scale: 0.5 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: '0px' }}
+          transition={{ duration: 0.8, delay: item.delay, ease: 'easeOut' }}
           className={`pointer-events-none absolute z-0 ${item.className}`}
         >
           <img
             src={item.src}
             alt=""
             loading="lazy"
-            className="w-full object-contain opacity-40 sm:opacity-90"
+            className="w-full object-contain opacity-30 sm:opacity-90"
           />
-        </FadeIn>
+        </motion.div>
       ))}
 
       <div className="relative z-10 flex flex-col items-center gap-8 sm:gap-12 md:gap-16">
