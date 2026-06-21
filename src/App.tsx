@@ -135,7 +135,7 @@ const projectsData: ProjectData[] = [
     homepage: null,
     topics: ['ai', 'chatbot', 'python', 'machine-learning'],
     image:
-      'https://private-user-images.githubusercontent.com/166246484/523867873-50314a61-3943-4749-8ff2-f5a3776bee6c.jpeg?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODIwNTU3NjYsIm5iZiI6MTc4MjA1NTQ2NiwicGF0aCI6Ii8xNjYyNDY0ODQvNTIzODY3ODczLTUwMzE0YTYxLTM5NDMtNDc0OS04ZmYyLWY1YTM3NzZiZWU2Yy5qcGVnP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI2MDYyMSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNjA2MjFUMTUyNDI2WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9NjQ0ZDE0YmZkMzBiZjJkNjFjNjM4OTVlNjA0ZmVmNWI2NDY2NGEyYTNiM2Q0MDMyOWM5N2M3MjVjODBhYmE1NiZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmcmVzcG9uc2UtY29udGVudC10eXBlPWltYWdlJTJGanBlZyJ9.SuFXX5aAEsZG5fzCvAaNXQ2D9OzQfszaqBB6_UGyhDw',
+      'https://raw.githubusercontent.com/RobsonMarcolino/Portfolio_Dev/main/RaioXapp.jpeg',
     video: 'https://robsonmarcolino.github.io/PortfolioProffiss/assets/Video-Dozy24uK.mp4',
   },
   {
