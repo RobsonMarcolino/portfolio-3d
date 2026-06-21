@@ -970,7 +970,7 @@ function ContactSection() {
       icon: <Linkedin className="h-5 w-5 sm:h-6 sm:w-6" />,
       label: 'LinkedIn',
       value: 'Robson Marcolino',
-      href: 'https://www.linkedin.com/in/robsonmarcolino/',
+      href: 'https://www.linkedin.com/in/robson-marcolino/?skipRedirect=true',
     },
     {
       icon: <Mail className="h-5 w-5 sm:h-6 sm:w-6" />,
