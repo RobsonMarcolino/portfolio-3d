@@ -981,8 +981,8 @@ function ContactSection() {
     {
       icon: <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />,
       label: 'WhatsApp',
-      value: 'Enviar mensagem',
-      href: 'https://wa.me/5511999999999',
+      value: '(31) 98758-1510',
+      href: 'https://wa.me/5531987581510?text=Ol%C3%A1!%20Vim%20pelo%20seu%20portf%C3%B3lio.',
     },
   ];
 
