@@ -553,7 +553,7 @@ function HeroSection() {
       </div>
 
       {/* 3D Portrait */}
-      <div className="absolute bottom-0 left-1/2 z-10 w-[240px] -translate-x-1/2 sm:w-[320px] md:w-[400px] lg:w-[480px]">
+      <div className="absolute bottom-[12vh] left-1/2 z-10 w-[55vw] max-w-[240px] -translate-x-1/2 sm:bottom-0 sm:w-[320px] sm:max-w-none md:w-[400px] lg:w-[480px]">
         <FadeIn delay={0.6} y={30}>
           <Magnet padding={150} strength={3}>
             <PortraitImage />
@@ -716,30 +716,30 @@ const aboutDecor = [
   {
     src: 'https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/moon_icon.11395d36.png',
     className:
-      'top-[4%] left-[1%] sm:left-[2%] md:left-[4%] w-[80px] sm:w-[130px] md:w-[210px]',
+      'top-[2%] left-[2%] sm:top-[4%] sm:left-[1%] md:left-[4%] w-[60px] sm:w-[130px] md:w-[210px]',
     delay: 0.1,
-    x: -80,
+    x: -30,
   },
   {
     src: 'https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/p59_1.4659672e.png',
     className:
-      'bottom-[8%] left-[2%] sm:left-[4%] md:left-[10%] w-[70px] sm:w-[110px] md:w-[180px]',
+      'bottom-[5%] left-[2%] sm:bottom-[8%] sm:left-[4%] md:left-[10%] w-[50px] sm:w-[110px] md:w-[180px]',
     delay: 0.25,
-    x: -80,
+    x: -30,
   },
   {
     src: 'https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/lego_icon-1.703bb594.png',
     className:
-      'top-[4%] right-[1%] sm:right-[2%] md:right-[4%] w-[80px] sm:w-[130px] md:w-[210px]',
+      'top-[10%] right-[2%] sm:top-[4%] sm:right-[1%] md:right-[4%] w-[60px] sm:w-[130px] md:w-[210px]',
     delay: 0.15,
-    x: 80,
+    x: 30,
   },
   {
     src: 'https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/Group_134-1.2e04f3ce.png',
     className:
-      'bottom-[8%] right-[2%] sm:right-[4%] md:right-[10%] w-[90px] sm:w-[140px] md:w-[220px]',
+      'bottom-[10%] right-[2%] sm:bottom-[8%] sm:right-[2%] md:right-[10%] w-[70px] sm:w-[140px] md:w-[220px]',
     delay: 0.3,
-    x: 80,
+    x: 30,
   },
 ];
 
@@ -748,7 +748,7 @@ function AboutSection() {
   return (
     <section
       id="about"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0C0C0C] px-5 py-16 sm:px-8 sm:py-20 md:px-10"
+      className="relative flex min-h-screen items-center justify-center overflow-clip bg-[#0C0C0C] px-5 py-16 sm:px-8 sm:py-20 md:px-10"
     >
       {/* Ambient gradient backgrounds */}
       <div className="pointer-events-none absolute inset-0 z-0">
@@ -770,7 +770,7 @@ function AboutSection() {
             src={item.src}
             alt=""
             loading="lazy"
-            className="w-full object-contain opacity-90"
+            className="w-full object-contain opacity-40 sm:opacity-90"
           />
         </FadeIn>
       ))}
