@@ -323,25 +323,29 @@ function LiveProjectButton() {
   );
 }
 
-/* ── PORTRAIT IMAGE ─────────────────────────────────── */
-function PortraitImage() {
-  const [hasError, setHasError] = useState(false);
+/* ── HERO BACKGROUND VIDEO (fullscreen, background removed via mix-blend-mode) ── */
+function HeroBgVideo() {
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  if (hasError) {
-    return (
-      <div className="flex aspect-[3/4] w-full items-center justify-center rounded-3xl border border-[#D7E2EA]/20 bg-[#D7E2EA]/5 text-center text-sm font-medium uppercase tracking-widest text-[#D7E2EA]/60">
-        Avatar 3D
-      </div>
-    );
-  }
+  useEffect(() => {
+    const v = videoRef.current;
+    if (v) {
+      v.play().catch(() => {});
+    }
+  }, []);
 
   return (
-    <img
-      src="/Imagem3D.png"
-      alt="Avatar 3D do Robson"
-      className="w-full select-none object-contain drop-shadow-[0_0_60px_rgba(182,0,168,0.3)]"
-      onError={() => setHasError(true)}
-    />
+    <div className="hero-video-wrapper pointer-events-none absolute inset-0 z-10 overflow-hidden">
+      <video
+        ref={videoRef}
+        src="/video.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="hero-video absolute inset-0 h-full w-full select-none object-contain object-bottom"
+      />
+    </div>
   );
 }
 
@@ -461,16 +465,6 @@ function MobileMenu({
 function HeroBackground() {
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-      {/* Grid */}
-      <div 
-        className="absolute inset-0 opacity-100" 
-        style={{
-          backgroundImage: 'linear-gradient(rgba(215, 226, 234, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(215, 226, 234, 0.08) 1px, transparent 1px)',
-          backgroundSize: '50px 50px',
-          maskImage: 'radial-gradient(ellipse at 50% 50%, black 10%, transparent 80%)',
-          WebkitMaskImage: 'radial-gradient(ellipse at 50% 50%, black 10%, transparent 80%)'
-        }}
-      />
       {/* Animated Glow Orbs */}
       <motion.div
         animate={{
@@ -497,7 +491,7 @@ function HeroSection() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <section className="relative flex h-[100svh] flex-col overflow-x-clip bg-[#0C0C0C]">
+    <section className="relative flex h-[100svh] flex-col overflow-x-clip bg-black">
       <HeroBackground />
       <FloatingNav onOpenMenu={() => setMenuOpen(true)} />
 
@@ -540,26 +534,68 @@ function HeroSection() {
 
       <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      {/* Hero title */}
-      <div className="relative z-0 mt-4 w-full overflow-hidden px-2 sm:mt-2 md:-mt-5">
-        <motion.h1
-          initial={{ y: 40, opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
-          animate={{ y: 0, opacity: 1, scale: 1, filter: 'blur(0px)' }}
-          transition={{ duration: 1.2, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-          className="hero-heading w-full whitespace-nowrap text-center text-[7vw] font-black uppercase leading-none tracking-tight sm:text-[7.5vw] md:text-[8vw] lg:text-[8.5vw]"
+      {/* ── Side text – LEFT ── */}
+      <div className="pointer-events-none absolute left-5 top-1/2 z-20 hidden -translate-y-1/2 md:block lg:left-10">
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1, delay: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+          className="flex flex-col items-center gap-3"
         >
-          Olá, eu sou o Robson!
-        </motion.h1>
+          <span className="hero-side-text text-[clamp(0.6rem,0.8vw,0.85rem)] font-bold uppercase tracking-[0.35em] text-[#D7E2EA]/70"
+            style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+          >
+            Robson Marcolino
+          </span>
+          <div className="h-16 w-px bg-gradient-to-b from-transparent via-[#D7E2EA]/30 to-transparent" />
+          <span className="hero-side-text text-[clamp(0.5rem,0.7vw,0.75rem)] font-medium uppercase tracking-[0.4em] text-[#D7E2EA]/40"
+            style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+          >
+            Portfolio 2025
+          </span>
+        </motion.div>
       </div>
 
-      {/* 3D Portrait */}
-      <div className="absolute top-[22%] left-1/2 z-10 w-[55vw] max-w-[240px] -translate-x-1/2 sm:top-auto sm:bottom-0 sm:w-[320px] sm:max-w-none md:w-[400px] lg:w-[480px]">
-        <FadeIn delay={0.6} y={30}>
-          <Magnet padding={150} strength={3}>
-            <PortraitImage />
-          </Magnet>
-        </FadeIn>
+      {/* ── Side text – RIGHT ── */}
+      <div className="pointer-events-none absolute right-5 top-1/2 z-20 hidden -translate-y-1/2 md:block lg:right-10">
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1, delay: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+          className="flex flex-col items-center gap-3"
+        >
+          <div className="hero-side-accent flex flex-col items-center gap-1">
+            {'CREATIVE'.split('').map((char, i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 1 + i * 0.06 }}
+                className="text-[clamp(0.7rem,0.9vw,1rem)] font-black uppercase leading-none tracking-widest text-[#D7E2EA]/60"
+              >
+                {char}
+              </motion.span>
+            ))}
+          </div>
+          <div className="h-12 w-px bg-gradient-to-b from-[#B600A8]/40 via-[#7621B0]/30 to-transparent" />
+          <div className="flex flex-col items-center gap-1">
+            {'DEV'.split('').map((char, i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 1.5 + i * 0.08 }}
+                className="text-[clamp(0.7rem,0.9vw,1rem)] font-black uppercase leading-none tracking-widest text-[#B600A8]/70"
+              >
+                {char}
+              </motion.span>
+            ))}
+          </div>
+        </motion.div>
       </div>
+
+      {/* Fullscreen 3D Video Background */}
+      <HeroBgVideo />
 
       {/* Bottom content */}
       <div className="relative z-20 mt-auto flex flex-col gap-4 px-5 pb-6 sm:flex-row sm:items-end sm:justify-between sm:px-6 sm:pb-8 md:px-10 md:pb-10">
