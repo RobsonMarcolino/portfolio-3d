@@ -1,7 +1,9 @@
 import {
   motion,
+  MotionConfig,
   useScroll,
   useTransform,
+  useReducedMotion,
   AnimatePresence,
   type MotionStyle,
   type MotionValue,
@@ -21,14 +23,15 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import {
-  createElement,
   type ComponentPropsWithoutRef,
   type ElementType,
   type ReactNode,
+  useCallback,
   useEffect,
   useRef,
   useState,
 } from 'react';
+import heroPoster from '../Imagem3D.png';
 
 /* ── CONFIG ─────────────────────────────────────────── */
 const githubUser = 'RobsonMarcolino';
@@ -191,17 +194,21 @@ const services = [
 ];
 
 /* ── FADE-IN COMPONENT ──────────────────────────────── */
-type FadeInProps<T extends ElementType> = {
-  as?: T;
+type FadeInProps = {
+  as?: 'div' | 'nav';
   children: ReactNode;
   delay?: number;
   duration?: number;
   x?: number;
   y?: number;
-  className?: string;
-} & Omit<ComponentPropsWithoutRef<T>, 'as' | 'children'>;
+} & Omit<ComponentPropsWithoutRef<'div'>, 'as' | 'children'>;
 
-function FadeIn<T extends ElementType = 'div'>({
+const motionElements: Record<'div' | 'nav', ElementType> = {
+  div: motion.div,
+  nav: motion.nav,
+};
+
+function FadeIn({
   as,
   children,
   delay = 0,
@@ -210,21 +217,20 @@ function FadeIn<T extends ElementType = 'div'>({
   y = 30,
   className,
   ...props
-}: FadeInProps<T>) {
-  const tag = as ?? 'div';
-  const MotionTag = motion.create(tag);
+}: FadeInProps) {
+  const MotionTag = motionElements[as ?? 'div'];
 
-  return createElement(
-    MotionTag,
-    {
-      className,
-      initial: { opacity: 0, x, y },
-      whileInView: { opacity: 1, x: 0, y: 0 },
-      viewport: { once: true, margin: '-50px', amount: 0.2 },
-      transition: { duration, delay, ease: [0.25, 0.1, 0.25, 1] },
-      ...props,
-    },
-    children,
+  return (
+    <MotionTag
+      className={className}
+      initial={{ opacity: 0, x, y }}
+      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      viewport={{ once: true, margin: '-50px', amount: 0.2 }}
+      transition={{ duration, delay, ease: [0.25, 0.1, 0.25, 1] }}
+      {...props}
+    >
+      {children}
+    </MotionTag>
   );
 }
 
@@ -326,23 +332,46 @@ function LiveProjectButton() {
 /* ── HERO BACKGROUND VIDEO (fullscreen, background removed via mix-blend-mode) ── */
 function HeroBgVideo() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const shouldReduceMotion = useReducedMotion();
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
 
   useEffect(() => {
-    const v = videoRef.current;
-    if (v) {
-      v.play().catch(() => {});
+    const connection = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection;
+    const hasLimitedData =
+      connection?.saveData ||
+      ['slow-2g', '2g'].includes(connection?.effectiveType ?? '') ||
+      window.matchMedia('(max-width: 767px)').matches;
+
+    if (shouldReduceMotion || hasLimitedData) {
+      setShouldLoadVideo(false);
+      return;
     }
-  }, []);
+
+    const timer = window.setTimeout(() => setShouldLoadVideo(true), 1500);
+    return () => window.clearTimeout(timer);
+  }, [shouldReduceMotion]);
+
+  useEffect(() => {
+    if (!shouldLoadVideo) return;
+    videoRef.current?.play().catch(() => {});
+  }, [shouldLoadVideo]);
 
   return (
     <div className="hero-video-wrapper pointer-events-none absolute inset-0 z-10 overflow-hidden">
       <video
         ref={videoRef}
-        src="/video.mp4"
-        autoPlay
+        src={shouldLoadVideo ? '/video.mp4' : undefined}
+        poster={heroPoster}
+        autoPlay={shouldLoadVideo}
         loop
         muted
         playsInline
+        preload="none"
+        aria-hidden="true"
         className="hero-video absolute inset-0 h-full w-full select-none object-contain object-bottom"
       />
     </div>
@@ -350,7 +379,13 @@ function HeroBgVideo() {
 }
 
 /* ── FLOATING NAV ───────────────────────────────────── */
-function FloatingNav({ onOpenMenu }: { onOpenMenu: () => void }) {
+function FloatingNav({
+  onOpenMenu,
+  isMenuOpen,
+}: {
+  onOpenMenu: () => void;
+  isMenuOpen: boolean;
+}) {
   const { scrollY } = useScroll();
   const [isVisible, setIsVisible] = useState(false);
 
@@ -400,6 +435,10 @@ function FloatingNav({ onOpenMenu }: { onOpenMenu: () => void }) {
                 onClick={onOpenMenu}
                 className="text-[#D7E2EA] transition-opacity hover:opacity-70"
                 aria-label="Abrir menu"
+                aria-expanded={isMenuOpen}
+                aria-controls={
+                  isMenuOpen ? 'mobile-navigation-dialog' : undefined
+                }
               >
                 <Menu className="h-6 w-6" />
               </button>
@@ -419,6 +458,65 @@ function MobileMenu({
   isOpen: boolean;
   onClose: () => void;
 }) {
+  const menuRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const skipFocusRestoreRef = useRef(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    previousFocusRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    const previousBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const focusableElements = Array.from(
+        menuRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      );
+      if (focusableElements.length === 0) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      const focusIsInsideMenu = menuRef.current?.contains(document.activeElement);
+
+      if (!focusIsInsideMenu) {
+        event.preventDefault();
+        (event.shiftKey ? lastElement : firstElement).focus();
+      } else if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousBodyOverflow;
+      if (!skipFocusRestoreRef.current && previousFocusRef.current?.isConnected) {
+        previousFocusRef.current.focus();
+      }
+      skipFocusRestoreRef.current = false;
+    };
+  }, [isOpen, onClose]);
+
   const links = [
     ['Sobre', '#about'],
     ['Serviços', '#price'],
@@ -430,6 +528,11 @@ function MobileMenu({
     <AnimatePresence>
       {isOpen && (
         <motion.div
+          ref={menuRef}
+          id="mobile-navigation-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu de navegação"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -437,18 +540,31 @@ function MobileMenu({
           className="fixed inset-0 z-50 flex items-center justify-center bg-[#0C0C0C]/95 backdrop-blur-lg md:hidden"
         >
           <button
+            ref={closeButtonRef}
             onClick={onClose}
             className="absolute right-6 top-6 text-[#D7E2EA] transition-opacity hover:opacity-70"
             aria-label="Fechar menu"
           >
             <X className="h-8 w-8" />
           </button>
-          <nav className="flex flex-col items-center gap-8">
+          <nav
+            aria-label="Navegação principal móvel"
+            className="flex flex-col items-center gap-8"
+          >
             {links.map(([item, href]) => (
               <a
                 key={item}
                 href={href}
-                onClick={onClose}
+                onClick={() => {
+                  skipFocusRestoreRef.current = true;
+                  onClose();
+                  window.setTimeout(() => {
+                    const target = document.querySelector<HTMLElement>(href);
+                    if (!target) return;
+                    target.tabIndex = -1;
+                    target.focus({ preventScroll: true });
+                  }, 0);
+                }}
                 className="text-2xl font-medium uppercase tracking-[0.3em] text-[#D7E2EA] transition-opacity duration-200 hover:opacity-70"
               >
                 {item}
@@ -463,24 +579,36 @@ function MobileMenu({
 
 /* ── HERO BACKGROUND EFFECT ───────────────────────────── */
 function HeroBackground() {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
       {/* Animated Glow Orbs */}
       <motion.div
-        animate={{
-          scale: [1, 1.3, 1],
-          opacity: [0.3, 0.6, 0.3],
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -top-[15%] -left-[10%] w-[60vw] h-[60vw] bg-[radial-gradient(circle,rgba(182,0,168,0.3),transparent_60%)] blur-[100px] rounded-full mix-blend-screen"
+        animate={
+          shouldReduceMotion
+            ? undefined
+            : { scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }
+        }
+        transition={
+          shouldReduceMotion
+            ? undefined
+            : { duration: 8, repeat: Infinity, ease: 'easeInOut' }
+        }
+        className="absolute -top-[15%] -left-[10%] h-[60vw] w-[60vw] rounded-full bg-[radial-gradient(circle,rgba(182,0,168,0.3),transparent_60%)] opacity-30 blur-[100px] mix-blend-screen"
       />
       <motion.div
-        animate={{
-          scale: [1, 1.4, 1],
-          opacity: [0.2, 0.5, 0.2],
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute bottom-[0%] -right-[10%] w-[70vw] h-[70vw] bg-[radial-gradient(circle,rgba(0,119,255,0.25),transparent_60%)] blur-[100px] rounded-full mix-blend-screen"
+        animate={
+          shouldReduceMotion
+            ? undefined
+            : { scale: [1, 1.4, 1], opacity: [0.2, 0.5, 0.2] }
+        }
+        transition={
+          shouldReduceMotion
+            ? undefined
+            : { duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }
+        }
+        className="absolute bottom-0 -right-[10%] h-[70vw] w-[70vw] rounded-full bg-[radial-gradient(circle,rgba(0,119,255,0.25),transparent_60%)] opacity-20 blur-[100px] mix-blend-screen"
       />
     </div>
   );
@@ -489,11 +617,13 @@ function HeroBackground() {
 /* ── HERO SECTION ───────────────────────────────────── */
 function HeroSection() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const openMenu = useCallback(() => setMenuOpen(true), []);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   return (
     <section className="relative flex h-[100svh] flex-col overflow-x-clip bg-black">
       <HeroBackground />
-      <FloatingNav onOpenMenu={() => setMenuOpen(true)} />
+      <FloatingNav onOpenMenu={openMenu} isMenuOpen={menuOpen} />
 
       {/* Nav */}
       <FadeIn
@@ -522,8 +652,10 @@ function HeroSection() {
         {/* Mobile burger */}
         <button
           className="text-[#D7E2EA] md:hidden"
-          onClick={() => setMenuOpen(true)}
+          onClick={openMenu}
           aria-label="Abrir menu"
+          aria-expanded={menuOpen}
+          aria-controls={menuOpen ? 'mobile-navigation-dialog' : undefined}
         >
           <Menu className="h-7 w-7" />
         </button>
@@ -532,7 +664,7 @@ function HeroSection() {
         </span>
       </FadeIn>
 
-      <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      <MobileMenu isOpen={menuOpen} onClose={closeMenu} />
 
       {/* ── Side text – LEFT ── */}
       <div className="pointer-events-none absolute left-5 top-1/2 z-20 hidden -translate-y-1/2 md:block lg:left-10">
@@ -618,14 +750,20 @@ function HeroSection() {
         y={10}
         className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2"
       >
-        <ChevronDown className="h-5 w-5 animate-bounce text-[#D7E2EA]/40" />
+        <ChevronDown className="h-5 w-5 animate-bounce text-[#D7E2EA]/40 motion-reduce:animate-none" />
       </FadeIn>
     </section>
   );
 }
 
 /* ── REPO TILE (Marquee) ────────────────────────────── */
-function RepoTile({ repo }: { repo: ProjectData }) {
+function RepoTile({
+  repo,
+  isDuplicate = false,
+}: {
+  repo: ProjectData;
+  isDuplicate?: boolean;
+}) {
   return (
     <a
       href={repo.html_url}
@@ -633,6 +771,8 @@ function RepoTile({ repo }: { repo: ProjectData }) {
       rel="noreferrer"
       className="group relative flex h-[220px] w-[280px] shrink-0 flex-col justify-between overflow-hidden rounded-2xl border border-[#D7E2EA]/20 bg-[#111111] transition-all duration-300 hover:border-[#D7E2EA]/50 hover:shadow-[0_0_30px_rgba(182,0,168,0.15)] sm:h-[250px] sm:w-[340px] md:h-[270px] md:w-[420px]"
       aria-label={`Visualizar projeto ${repo.displayName}`}
+      aria-hidden={isDuplicate || undefined}
+      tabIndex={isDuplicate ? -1 : undefined}
     >
       {/* Background Image Only */}
       <img
@@ -657,7 +797,11 @@ function MarqueeRow({
   return (
     <div className="flex gap-3" data-marquee-row={direction}>
       {repeated.map((repo, index) => (
-        <RepoTile key={`${repo.id}-${index}`} repo={repo} />
+        <RepoTile
+          key={`${repo.id}-${index}`}
+          repo={repo}
+          isDuplicate={index >= repos.length}
+        />
       ))}
     </div>
   );
@@ -665,14 +809,23 @@ function MarqueeRow({
 
 function MarqueeSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const shouldReduceMotion = useReducedMotion();
   
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start end', 'end start'],
   });
 
-  const x1 = useTransform(scrollYProgress, [0, 1], [-400, 200]);
-  const x2 = useTransform(scrollYProgress, [0, 1], [100, -500]);
+  const x1 = useTransform(
+    scrollYProgress,
+    [0, 1],
+    shouldReduceMotion ? [0, 0] : [-400, 200],
+  );
+  const x2 = useTransform(
+    scrollYProgress,
+    [0, 1],
+    shouldReduceMotion ? [0, 0] : [100, -500],
+  );
 
   const midpoint = Math.ceil(projectsData.length / 2);
   const firstRow = projectsData.slice(0, midpoint);
@@ -868,6 +1021,7 @@ function ProjectCard({
   total: number;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const shouldReduceMotion = useReducedMotion();
   
   const { scrollYProgress } = useScroll({
     target: cardRef,
@@ -875,7 +1029,11 @@ function ProjectCard({
   });
 
   const targetScale = 1 - (total - 1 - index) * 0.03;
-  const scale = useTransform(scrollYProgress, [0, 1], [1, targetScale]);
+  const scale = useTransform(
+    scrollYProgress,
+    [0, 1],
+    shouldReduceMotion ? [1, 1] : [1, targetScale],
+  );
 
   return (
     <div
@@ -934,13 +1092,15 @@ function ProjectCard({
           {/* Right column: Project screenshot or video */}
           <div className="relative flex h-[200px] flex-col justify-end overflow-hidden rounded-[20px] border border-[#D7E2EA]/15 sm:h-[250px] sm:rounded-[30px] md:h-full md:rounded-[50px]">
             {/* Screenshot or Video background */}
-            {repo.video ? (
+            {repo.video && !shouldReduceMotion ? (
               <video
                 src={repo.video}
                 autoPlay
                 loop
                 muted
                 playsInline
+                preload="none"
+                aria-hidden="true"
                 className="absolute inset-0 h-full w-full object-cover object-top"
               />
             ) : (
@@ -1117,14 +1277,16 @@ function Footer() {
 /* ── APP ────────────────────────────────────────────── */
 export default function App() {
   return (
-    <main className="min-h-screen w-full max-w-[100vw] bg-[#0C0C0C] font-kanit">
-      <HeroSection />
-      <MarqueeSection />
-      <AboutSection />
-      <ServicesSection />
-      <ProjectsSection />
-      <ContactSection />
-      <Footer />
-    </main>
+    <MotionConfig reducedMotion="user">
+      <main className="min-h-screen w-full max-w-[100vw] bg-[#0C0C0C] font-kanit">
+        <HeroSection />
+        <MarqueeSection />
+        <AboutSection />
+        <ServicesSection />
+        <ProjectsSection />
+        <ContactSection />
+        <Footer />
+      </main>
+    </MotionConfig>
   );
 }
