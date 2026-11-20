@@ -70,7 +70,7 @@ const projectsData: ProjectData[] = [
     homepage: null,
     topics: ['react', 'typescript', 'tailwind', 'e-commerce'],
     image:
-      'https://raw.githubusercontent.com/RobsonMarcolino/Portfolio_Dev/main/NexusStore.png',
+      'https://raw.githubusercontent.com/RobsonMarcolino/PortfolioProffiss/main/src/assets/NexusStore.png',
   },
   {
     id: 2,
@@ -87,7 +87,7 @@ const projectsData: ProjectData[] = [
     homepage: null,
     topics: ['next.js', 'firebase', 'social-impact', 'fullstack'],
     image:
-      'https://raw.githubusercontent.com/RobsonMarcolino/Portfolio_Dev/main/ConectaDoa.png',
+      'https://raw.githubusercontent.com/RobsonMarcolino/PortfolioProffiss/main/src/assets/ConectaDoa.png',
   },
   {
     id: 3,
@@ -104,7 +104,7 @@ const projectsData: ProjectData[] = [
     homepage: null,
     topics: ['node.js', 'mongodb', 'express', 'api'],
     image:
-      'https://raw.githubusercontent.com/RobsonMarcolino/Portfolio_Dev/main/MecChill.png',
+      'https://raw.githubusercontent.com/RobsonMarcolino/PortfolioProffiss/main/src/assets/MecChill.png',
   },
   {
     id: 4,
@@ -121,7 +121,7 @@ const projectsData: ProjectData[] = [
     homepage: null,
     topics: ['react', 'api', 'marvel', 'frontend'],
     image:
-      'https://raw.githubusercontent.com/RobsonMarcolino/Portfolio_Dev/main/MarvelStore.png',
+      'https://raw.githubusercontent.com/RobsonMarcolino/PortfolioProffiss/main/src/assets/MarvelStore.png',
   },
   {
     id: 5,
@@ -138,7 +138,7 @@ const projectsData: ProjectData[] = [
     homepage: null,
     topics: ['ai', 'chatbot', 'python', 'machine-learning'],
     image:
-      'https://github.com/RobsonMarcolino/Portfolio_Dev/blob/main/RaioXapp.jpeg?raw=true',
+      'https://raw.githubusercontent.com/RobsonMarcolino/PortfolioProffiss/main/src/assets/RaioXapp.jpeg',
     video: 'https://robsonmarcolino.github.io/PortfolioProffiss/assets/Video-Dozy24uK.mp4',
   },
   {
@@ -156,7 +156,7 @@ const projectsData: ProjectData[] = [
     homepage: null,
     topics: ['html', 'css', 'javascript', 'landing-page'],
     image:
-      'https://raw.githubusercontent.com/RobsonMarcolino/Portfolio_Dev/main/TheBarber.png',
+      'https://raw.githubusercontent.com/RobsonMarcolino/PortfolioProffiss/main/src/assets/TheBarber.png',
   },
 ];
 
